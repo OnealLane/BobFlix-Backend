@@ -1,14 +1,13 @@
-﻿namespace Bobflix_Backend.Models
-{
-    public class AuthRequest
-    {
-        public string Email { get; set; }
-        public string Password { get; set; }
+﻿namespace Bobflix_Backend.Models;
 
-        public bool IsValid()
-        {
-            return true;
-        }
+public class AuthRequest
+{
+    public string Email { get; set; }
+    public string Password { get; set; }
+
+    public bool IsValid()
+    {
+        return true;
     }
 }
 
