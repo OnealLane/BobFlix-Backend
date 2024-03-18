@@ -22,8 +22,6 @@ namespace Bobflix_Backend.Controllers
                 _tokenService = tokenService;
             }
 
-
-
             [HttpPost]
             [Route("register")]
             public async Task<IActionResult> Register(RegistrationRequest request)

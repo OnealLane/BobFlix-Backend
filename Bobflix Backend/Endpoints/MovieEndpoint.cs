@@ -1,4 +1,6 @@
-﻿using Bobflix_Backend.Repository.Interfaces;
+﻿using Bobflix_Backend.ApiResponseType;
+using Bobflix_Backend.Models;
+using Bobflix_Backend.Repository.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Runtime.CompilerServices;
 
@@ -11,16 +13,33 @@ namespace Bobflix_Backend.Endpoints
             var movieGroup = app.MapGroup("movies");
 
             movieGroup.MapGet("", GetMovies);
+            movieGroup.MapGet("{pageNum}", GetMoviesByPage);
+            movieGroup.MapGet("{searchTerm}/{pageNum}", GetMoviesBySearch);
 
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public static async Task<IResult> GetMovies(IMovieRepository movieRepository)
+        public static async Task<ApiResponseType<IEnumerable<Movie>>> GetMovies(IMovieRepository movieRepository)
         {
              var result = await movieRepository.GetMovies();
 
-            return TypedResults.Ok(result);
+            return new ApiResponseType<IEnumerable<Movie>>(true, "Successfully requested all movies", result);
 
+        }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public static async Task<ApiResponseType<IEnumerable<Movie>>> GetMoviesByPage(IMovieRepository movieRepository, int pageNum)
+        {
+            var result = await movieRepository.GetMoviesByPage(pageNum);
+            return new ApiResponseType<IEnumerable<Movie>>(true, "Successfully requested movies by page", result);
+        }
+
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public static async Task<ActionResult<ApiResponseType<IEnumerable<Movie>>>> GetMoviesBySearch(IMovieRepository moviesRepository, string searchTerm, int pageNum)
+        {
+            var result = await moviesRepository.GetMoviesBySearch(searchTerm, pageNum);
+            return new ApiResponseType<IEnumerable<Movie>>(true, "Successfully requested movies by page", result);
         }
     }
 }
