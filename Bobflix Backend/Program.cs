@@ -100,6 +100,8 @@ var validIssuer = builder.Configuration.GetValue<string>("JwtTokenSettings:Valid
 var validAudience = builder.Configuration.GetValue<string>("JwtTokenSettings:ValidAudience");
 var symmetricSecurityKey = builder.Configuration.GetValue<string>("JwtTokenSettings:SymmetricSecurityKey");
 
+builder.Services.AddScoped<IMovieRepository, MovieRepository>();
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -125,7 +127,6 @@ builder.Services.AddAuthentication(options =>
     });
 
 
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -143,6 +144,7 @@ app.UseAuthorization();
 
 
 app.MapControllers();
+app.ConfigureMovieEndpoint();
 
 
 app.Run();

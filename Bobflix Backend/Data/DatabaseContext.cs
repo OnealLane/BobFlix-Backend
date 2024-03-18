@@ -2,6 +2,8 @@
 
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using OMDbApiNet;
+using OMDbApiNet.Model;
 
 namespace Bobflix_Backend
 {
@@ -9,17 +11,29 @@ namespace Bobflix_Backend
     {
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
         {
-
+            
+            
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            List<Movie> Movies = new List<Movie>();
+            OmdbClient omdb = new OmdbClient("4f687ad8");
+            for( int i = 1; i<=80; i++)
+            {
+                SearchList sL = omdb.GetSearchList("bob", i);
+                foreach (var searchItem in sL.SearchResults)
+                {
+                    Item item = omdb.GetItemById(searchItem.ImdbId, true);
+                    Movie movie = new Movie { ImdbId = item.ImdbId, Title = item.Title, Plot = item.Plot, Poster_url = item.Poster, Director = item.Director, Released = item.Released };
+                    Movies.Add(movie);
+                }
+
+            }
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Movie>().HasData(Movies);
         }
 
-
-
-
-
+        public DbSet<Movie> Movies { get; set; }
         
     }
 }
