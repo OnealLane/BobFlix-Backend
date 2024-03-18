@@ -1,19 +1,18 @@
+using Bobflix_Backend;
+using Bobflix_Backend.Endpoints;
 using Bobflix_Backend.Models;
+using Bobflix_Backend.Repository;
+using Bobflix_Backend.Repository.Interfaces;
 using Bobflix_Backend.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using Bobflix_Backend.Data;
-using Bobflix_Backend.Endpoints;
-using Bobflix_Backend.Repository.Interfaces;
-using Bobflix_Backend.Repository;
-using Bobflix_Backend;
-using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -134,6 +133,11 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseCors(opt =>
+    {
+        opt.AllowAnyOrigin();
+        opt.AllowAnyHeader();
+    });
 }
 
 app.UseHttpsRedirection();
