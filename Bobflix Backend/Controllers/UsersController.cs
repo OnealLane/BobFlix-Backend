@@ -1,8 +1,12 @@
 ﻿using Bobflix_Backend.Enums;
+using Bobflix_Backend.Helpers;
 using Bobflix_Backend.Models;
+using Bobflix_Backend.Models.Request;
 using Bobflix_Backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 
 namespace Bobflix_Backend.Controllers
 {
@@ -93,6 +97,64 @@ namespace Bobflix_Backend.Controllers
                     Token = AccessToken
                 });
             }
+
+        [HttpPut]
+        [Authorize(Roles = "User, Admin")]
+        [Route("update")] 
+        public async Task<IActionResult> UpdateUser(UserUpdateRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var currEmail = User.Email();
+            var currentUser = await _userManager.FindByEmailAsync(currEmail);
+
+         
+
+            if(!string.IsNullOrEmpty(request.NewPassword))
+            {
+                var result = await _userManager.ChangePasswordAsync(currentUser, request.CurrentPassword, request.NewPassword);
+
+                if(!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(error.Code, error.Description);
+                    }
+                    return BadRequest(ModelState);
+                }
+            }
+
+            var updatedResult = await _userManager.UpdateAsync(currentUser);
+
+            var userInDb = _dataContext.Users.FirstOrDefault(u => u.Email == request.Email);
+
+            if (userInDb == null)
+            {
+                return Unauthorized();
+            }
+
+            if (updatedResult.Succeeded)
+            {
+                return Ok( new AuthResponse
+                {
+                    Username = userInDb.UserName,
+                    Email = userInDb.Email
+                }
+                    );
+
+            }
+            else
+            {
+                foreach ( var error in updatedResult.Errors)
+                {
+                    ModelState.AddModelError(error.Code, error.Description);
+                }
+                return BadRequest(ModelState);
+            }
+
         }
+    }
     }
 
