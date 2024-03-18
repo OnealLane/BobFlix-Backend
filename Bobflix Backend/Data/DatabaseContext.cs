@@ -18,7 +18,7 @@ namespace Bobflix_Backend
         {
             List<Movie> Movies = new List<Movie>();
             OmdbClient omdb = new OmdbClient("4f687ad8");
-            for( int i = 1; i<=80; i++)
+            for( int i = 1; i<=10; i++)
             {
                 SearchList sL = omdb.GetSearchList("bob", i);
                 foreach (var searchItem in sL.SearchResults)
