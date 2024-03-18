@@ -29,7 +29,9 @@ namespace Bobflix_Backend
                 }
 
             }
+            
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Movie>().HasMany(m => m.Users).WithMany(u => u.Movies).UsingEntity<UserMovie>();
             modelBuilder.Entity<Movie>().HasData(Movies);
         }
 

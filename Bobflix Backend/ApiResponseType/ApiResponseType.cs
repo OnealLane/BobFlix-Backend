@@ -12,7 +12,7 @@
             Data = data;
         }
 
-        public ApiResponseType() { }
+        public ApiResponseType(bool v) { }
 
  
     }

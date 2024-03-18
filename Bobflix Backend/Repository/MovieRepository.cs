@@ -1,4 +1,5 @@
 ﻿using Bobflix_Backend.Models;
+using Bobflix_Backend.Models.Dto;
 using Bobflix_Backend.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -19,7 +20,7 @@ namespace Bobflix_Backend.Repository
             return await _db.Movies.ToListAsync();
         }
 
-        public async Task<IEnumerable<Movie>> GetMoviesByPage(int pageNum)
+        public async Task<List<Movie>> GetMoviesByPage(int pageNum)
         {
             int numMovies = _db.Movies.Count();
             double saus = numMovies / 10;
