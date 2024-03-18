@@ -1,5 +1,6 @@
 ﻿using Bobflix_Backend.ApiResponseType;
 using Bobflix_Backend.Models;
+using Bobflix_Backend.Models.Dto;
 using Bobflix_Backend.Repository.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Runtime.CompilerServices;
@@ -28,10 +29,29 @@ namespace Bobflix_Backend.Endpoints
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public static async Task<ApiResponseType<IEnumerable<Movie>>> GetMoviesByPage(IMovieRepository movieRepository, int pageNum)
+        public static async Task<ApiResponseType<List<GetMovieDto>>> GetMoviesByPage(IMovieRepository movieRepository, int pageNum)
         {
-            var result = await movieRepository.GetMoviesByPage(pageNum);
-            return new ApiResponseType<IEnumerable<Movie>>(true, "Successfully requested movies by page", result);
+            var moviesByPage = await movieRepository.GetMoviesByPage(pageNum);
+
+            List<GetMovieDto> movies = new List<GetMovieDto>();
+
+            foreach (var entity in moviesByPage)
+            {
+                var movie = new GetMovieDto()
+                {
+                    ImdbId = entity.ImdbId,
+                    Title = entity.Title,
+                    Plot = entity.Plot,
+                    Poster_url = entity.Poster_url,
+                    Director = entity.Director,
+                    Released = entity.Released,
+                    AverageRating = 1,
+                    CurrentUserRating = 1,
+                };
+                movies.Add(movie);  
+            }
+
+            return new ApiResponseType<List<GetMovieDto>>(true, "Successfully requested movies by page", movies);
         }
 
 

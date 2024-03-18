@@ -7,7 +7,7 @@ namespace Bobflix_Backend.Repository.Interfaces
     {
         Task<IEnumerable<Movie>> GetMovies();
 
-        Task<IEnumerable<Movie>> GetMoviesByPage(int pageNum);
+        Task<List<Movie>> GetMoviesByPage(int pageNum);
 
         Task<IEnumerable<Movie>> GetMoviesBySearch(string searchTerm, int pageNum);
     }

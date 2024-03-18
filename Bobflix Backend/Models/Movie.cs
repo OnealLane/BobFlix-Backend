@@ -14,6 +14,7 @@ namespace Bobflix_Backend.Models
         public string Poster_url { get; set; }
         public string Director { get; set; }
         public string Released {  get; set; }
+        public IEnumerable<ApplicationUser> Users { get; set; }
 
     }
 }

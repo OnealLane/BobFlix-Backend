@@ -3,6 +3,7 @@ using System;
 using Bobflix_Backend;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Bobflix_Backend.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240318142707_UserMovie")]
+    partial class UserMovie
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,21 @@ namespace Bobflix_Backend.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("ApplicationUserMovie", b =>
+                {
+                    b.Property<string>("MoviesImdbId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UsersId")
+                        .HasColumnType("text");
+
+                    b.HasKey("MoviesImdbId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("ApplicationUserMovie");
+                });
 
             modelBuilder.Entity("Bobflix_Backend.Models.ApplicationUser", b =>
                 {
@@ -1022,41 +1040,6 @@ namespace Bobflix_Backend.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Bobflix_Backend.Models.UserMovie", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text")
-                        .HasColumnName("userId");
-
-                    b.Property<int>("ImdbId")
-                        .HasColumnType("integer")
-                        .HasColumnName("imdbId");
-
-                    b.Property<bool>("Favourite")
-                        .HasColumnType("boolean")
-                        .HasColumnName("favourite");
-
-                    b.Property<string>("MoviesImdbId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("integer")
-                        .HasColumnName("rating");
-
-                    b.Property<string>("UsersId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("UserId", "ImdbId");
-
-                    b.HasIndex("MoviesImdbId");
-
-                    b.HasIndex("UsersId");
-
-                    b.ToTable("UserMovie");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
                     b.Property<int>("Id")
@@ -1123,7 +1106,7 @@ namespace Bobflix_Backend.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Bobflix_Backend.Models.UserMovie", b =>
+            modelBuilder.Entity("ApplicationUserMovie", b =>
                 {
                     b.HasOne("Bobflix_Backend.Models.Movie", null)
                         .WithMany()
