@@ -1,5 +1,6 @@
 using Bobflix_Backend;
 using Bobflix_Backend.Endpoints;
+using Bobflix_Backend.Helpers;
 using Bobflix_Backend.Models;
 using Bobflix_Backend.Repository;
 using Bobflix_Backend.Repository.Interfaces;
@@ -101,6 +102,8 @@ var symmetricSecurityKey = builder.Configuration.GetValue<string>("JwtTokenSetti
 
 builder.Services.AddScoped<IMovieRepository, MovieRepository>();
 builder.Services.AddScoped<IFavouriteRepository, FavouriteRepository>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<IUserHelper, UserHelper>();
 
 builder.Services.AddAuthentication(options =>
 {
