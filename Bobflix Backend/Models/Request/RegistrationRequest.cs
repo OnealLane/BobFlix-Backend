@@ -15,7 +15,7 @@ namespace Bobflix_Backend.Models
         [Required]
         public string? Password { get; set; }
 
-        public Role role { get; set; } = Role.User;
+        public Role Role { get; set; } = Role.User;
 
     }
 }

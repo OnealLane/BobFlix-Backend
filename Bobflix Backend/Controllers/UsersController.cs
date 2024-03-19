@@ -38,7 +38,7 @@ namespace Bobflix_Backend.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = new ApplicationUser { UserName = request.Username, Email = request.Email, Role = request.role };
+            var user = new ApplicationUser { UserName = request.Username, Email = request.Email, Role = request.Role };
 
             var result = await _userManager.CreateAsync(user, request.Password);
 
