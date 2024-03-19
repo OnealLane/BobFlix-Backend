@@ -47,23 +47,60 @@ namespace Bobflix_Backend.Repository
             };
         }
 
-        public async Task<IEnumerable<Movie>> GetMoviesBySearch(string searchTerm, int pageNum)
+        public async Task<GetMoviesDto> GetMoviesBySearch(string searchTerm, int pageNum)
         {
             var movies = await _db.Movies.ToListAsync();
-            List<Movie> filteredMovies = new List<Movie>();
+
+            List<GetMovieDto> filteredMovies = new List<GetMovieDto>();
 
             foreach(var movie in movies)
             {
+                var movieDto = new GetMovieDto()
+                {
+                    ImdbId = movie.ImdbId,
+                    Title = movie.Title,
+                    Plot = movie.Plot,
+                    PosterUrl = movie.PosterUrl,
+                    Director = movie.Director,
+                    Released = movie.Released,
+                    AvgRating = movie.AvgRating,
+                    CurrentUserRating = 1,
+                };
                 if (movie.Title.Contains(searchTerm))
                 {
-                    filteredMovies.Add(movie);
+                    filteredMovies.Add(movieDto);
                 }
             }
 
-            return filteredMovies.Skip((pageNum - 1) * 10).Take(10);    
+            var numMovies = filteredMovies.Count();
+            double saus = numMovies / 10;
+            int numPages = (int)Math.Ceiling(saus);
 
-            
-            
+            filteredMovies.Skip((pageNum - 1) * 10).Take(10);
+
+            return new GetMoviesDto()
+            {
+                Movies = filteredMovies,
+                CurrentPage = pageNum,
+                TotalPages = numPages
+            };
+        }
+
+        public async Task<GetMovieDto> GetMovieById(string id)
+        {
+            var movie = await _db.Movies.FirstOrDefaultAsync(x => x.ImdbId == id);
+
+            return new GetMovieDto()
+            {
+                ImdbId = movie.ImdbId,
+                Title = movie.Title,
+                Plot = movie.Plot,
+                PosterUrl = movie.PosterUrl,
+                Director = movie.Director,
+                Released = movie.Released,
+                AvgRating = movie.AvgRating,
+                CurrentUserRating = 1,
+            };
         }
                
     }
