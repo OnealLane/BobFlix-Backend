@@ -1,4 +1,5 @@
-﻿using Bobflix_Backend.Models;
+﻿using Bobflix_Backend.Helpers;
+using Bobflix_Backend.Models;
 using Bobflix_Backend.Models.Dto;
 using Bobflix_Backend.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -9,16 +10,14 @@ namespace Bobflix_Backend.Repository
     public class MovieRepository : IMovieRepository
     {
         private DatabaseContext _db;
+        private IUserHelper _userHelper;
 
-        public MovieRepository(DatabaseContext db)
+        public MovieRepository(DatabaseContext db, IUserHelper userHelper)
         {
             _db = db;
+            _userHelper = userHelper;
         }
 
-        public async Task<List<Movie>> GetMovies()
-        {
-            return await _db.Movies.ToListAsync();
-        }
 
         public async Task<GetMoviesDto> GetMoviesByPage(int pageNum)
         {

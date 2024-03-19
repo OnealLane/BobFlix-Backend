@@ -13,20 +13,14 @@ namespace Bobflix_Backend.Endpoints
         {
             var movieGroup = app.MapGroup("api/movies");
 
-            movieGroup.MapGet("", GetMovies);
+           
             movieGroup.MapGet("{pageNum}", GetMoviesByPage);
             movieGroup.MapGet("{searchTerm}/{pageNum}", GetMoviesBySearch);
             movieGroup.MapGet("getBy/{id}", GetMovieById);
 
         }
 
-        public static async Task<ApiResponseType<List<Movie>>> GetMovies(IMovieRepository movieRepository)
-        {
-             var result = await movieRepository.GetMovies();
-
-            return new ApiResponseType<List<Movie>>(true, "Successfully requested all movies", result);
-
-        }
+      
 
         public static async Task<ApiResponseType<GetMoviesDto>> GetMoviesByPage(IMovieRepository movieRepository, int pageNum)
         {
