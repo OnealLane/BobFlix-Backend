@@ -13,7 +13,7 @@ namespace Bobflix_Backend.Models
         public string UserId { get; set; }
         [ForeignKey("Movie")]
         [Column("imdbId")]
-        public int ImdbId { get; set; }
+        public string ImdbId { get; set; }
         [Column("favourite")]
         public bool Favourite {  get; set; }
         [Column("rating")]

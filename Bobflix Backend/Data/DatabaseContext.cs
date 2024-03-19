@@ -17,6 +17,7 @@ namespace Bobflix_Backend
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             List<Movie> Movies = new List<Movie>();
+            List<UserMovie> UserMovies = new List<UserMovie>();
             OmdbClient omdb = new OmdbClient("4f687ad8");
             for( int i = 1; i<=10; i++)
             {
@@ -34,9 +35,11 @@ namespace Bobflix_Backend
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Movie>().HasMany(m => m.Users).WithMany(u => u.Movies).UsingEntity<UserMovie>();
             modelBuilder.Entity<Movie>().HasData(Movies);
+            modelBuilder.Entity<UserMovie>().HasData(UserMovies);
         }
 
         public DbSet<Movie> Movies { get; set; }
+        public DbSet<UserMovie> UserMovies { get; set; }
         
     }
 }
