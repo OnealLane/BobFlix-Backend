@@ -1,6 +1,30 @@
-﻿namespace Bobflix_Backend.Endpoints
+﻿using Bobflix_Backend.ApiResponseType;
+using Bobflix_Backend.Models;
+using Bobflix_Backend.Models.Dto;
+using Bobflix_Backend.Repository.Interfaces;
+using Microsoft.AspNetCore.Builder;
+
+namespace Bobflix_Backend.Endpoints
 {
-    public class FavouriteEndpoint
+    public static class FavouriteEndpoint
     {
+        public static void ConfigureFavouriteEndpoint(this WebApplication app)
+        {
+            var favouriteGroup = app.MapGroup("api/favourite/");
+
+            favouriteGroup.MapPut("{ImdbId}", SetFavourite);
+        }
+
+
+
+        public static async Task<ApiResponseType<UserMovie>> SetFavourite(IFavouriteRepository favouriteRepository, string ImdbId){
+
+            var userMovie = await favouriteRepository.SetFavourite(ImdbId);
+
+            return new ApiResponseType<UserMovie>(true, "Successfully set favourite movie", userMovie);
+
+        }
+
+
     }
 }

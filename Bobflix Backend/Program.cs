@@ -101,6 +101,7 @@ var validAudience = builder.Configuration.GetValue<string>("JwtTokenSettings:Val
 var symmetricSecurityKey = builder.Configuration.GetValue<string>("JwtTokenSettings:SymmetricSecurityKey");
 
 builder.Services.AddScoped<IMovieRepository, MovieRepository>();
+builder.Services.AddScoped<IFavouriteRepository, FavouriteRepository>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -145,6 +146,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.ConfigureMovieEndpoint();
+app.ConfigureFavouriteEndpoint();
 
 
 app.Run();

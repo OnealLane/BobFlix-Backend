@@ -3,6 +3,7 @@ using System;
 using Bobflix_Backend;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Bobflix_Backend.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240319104234_UserMoviesMigration")]
+    partial class UserMoviesMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1131,13 +1134,17 @@ namespace Bobflix_Backend.Migrations
                         .HasColumnType("text")
                         .HasColumnName("userId");
 
-                    b.Property<string>("ImdbId")
-                        .HasColumnType("text")
+                    b.Property<int>("ImdbId")
+                        .HasColumnType("integer")
                         .HasColumnName("imdbId");
 
                     b.Property<bool>("Favourite")
                         .HasColumnType("boolean")
                         .HasColumnName("favourite");
+
+                    b.Property<string>("MoviesImdbId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("Rating")
                         .HasColumnType("integer")
@@ -1149,7 +1156,7 @@ namespace Bobflix_Backend.Migrations
 
                     b.HasKey("UserId", "ImdbId");
 
-                    b.HasIndex("ImdbId");
+                    b.HasIndex("MoviesImdbId");
 
                     b.HasIndex("UsersId");
 
@@ -1226,7 +1233,7 @@ namespace Bobflix_Backend.Migrations
                 {
                     b.HasOne("Bobflix_Backend.Models.Movie", null)
                         .WithMany()
-                        .HasForeignKey("ImdbId")
+                        .HasForeignKey("MoviesImdbId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
