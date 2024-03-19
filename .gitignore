@@ -482,3 +482,12 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+/Bobflix\ Backend/appsettings.json
+/Bobflix\ Backend/appsettings.Development.json
+*/**/bin/Debug   
+*/**/bin/Release   
+*/**/obj/Debug   
+*/**/obj/Release   
+/BobFlix\ Backend/appsettings.json
+/Bobflix\ Backend/appsettings.Development.json

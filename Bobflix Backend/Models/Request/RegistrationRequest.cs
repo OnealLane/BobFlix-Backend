@@ -10,7 +10,7 @@ namespace Bobflix_Backend.Models
         public string? Email { get; set; }
 
         [Required]
-        public string? Username { get { return this.Email; } set { } }
+        public string? Username { get; set; }
 
         [Required]
         public string? Password { get; set; }

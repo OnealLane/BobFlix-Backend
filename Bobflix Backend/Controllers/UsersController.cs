@@ -39,14 +39,12 @@ namespace Bobflix_Backend.Controllers
             }
 
             var user = new ApplicationUser { UserName = request.Username, Email = request.Email, Role = request.role };
-            // request.Password!
-
 
             var result = await _userManager.CreateAsync(user, request.Password);
 
             if (result.Succeeded)
             {
-
+               
                 return CreatedAtAction(nameof(Register), new { email = request.Email, role = Role.User }, request);
             }
 
@@ -91,17 +89,21 @@ namespace Bobflix_Backend.Controllers
             var AccessToken = _tokenService.CreateToken(userInDb);
             await _dataContext.SaveChangesAsync();
 
-            //return new ApiResponseType<IEnumerable<Movie>>(true, "Successfully requested all movies", result);
-          
-          
-
-
-            return Ok(new AuthResponse
+           AuthResponse user = new AuthResponse
             {
                 Username = userInDb.UserName,
                 Email = userInDb.Email,
                 Token = AccessToken
-            });
+            };
+
+
+            var response = new ApiResponseType<AuthResponse>
+            {
+                Data = user,
+                Success = true,
+                ErrorMessage = string.Empty
+            };
+            return Ok(response);
         }
 
         [HttpPut]
@@ -132,23 +134,28 @@ namespace Bobflix_Backend.Controllers
                 }
             }
 
+
             var updatedResult = await _userManager.UpdateAsync(currentUser);
 
-            var userInDb = _dataContext.Users.FirstOrDefault(u => u.Email == request.Email);
-
-            if (userInDb == null)
-            {
-                return Unauthorized();
-            }
+           
 
             if (updatedResult.Succeeded)
             {
-                return Ok(new AuthResponse
+
+                AuthResponse user = new AuthResponse
                 {
-                    Username = userInDb.UserName,
-                    Email = userInDb.Email
-                }
-                    );
+                    Username = currentUser.UserName,
+                    Email = currentUser.Email
+                };
+
+
+                var response = new ApiResponseType<AuthResponse>
+                {
+                    Data = user,
+                    Success = true,
+                    ErrorMessage = string.Empty
+                };
+                return Ok(response);
 
             }
             else
@@ -177,6 +184,15 @@ namespace Bobflix_Backend.Controllers
                 UserName = currentUser.UserName,
                 Email = currentUser.Email
             };
+
+            if(currentUser.Email == null)
+            {
+                var ErrResponse = new ApiResponseType<GetUserDTO> { 
+                    Success = false, 
+                    Data = user,
+                    ErrorMessage = "User not logged in"};
+                return TypedResults.Ok(ErrResponse);
+            }
             var response = new ApiResponseType<GetUserDTO>
             {
                 Data = user,
