@@ -97,12 +97,8 @@ namespace Bobflix_Backend.Controllers
             };
 
 
-            var response = new ApiResponseType<AuthResponse>
-            {
-                Data = user,
-                Success = true,
-                ErrorMessage = string.Empty
-            };
+            var response = new ApiResponseType<AuthResponse>(true, "", user);
+           
             return Ok(response);
         }
 
@@ -149,12 +145,7 @@ namespace Bobflix_Backend.Controllers
                 };
 
 
-                var response = new ApiResponseType<AuthResponse>
-                {
-                    Data = user,
-                    Success = true,
-                    ErrorMessage = string.Empty
-                };
+                var response = new ApiResponseType<AuthResponse>(true, "", user);
                 return Ok(response);
 
             }
@@ -187,18 +178,10 @@ namespace Bobflix_Backend.Controllers
 
             if(currentUser.Email == null)
             {
-                var ErrResponse = new ApiResponseType<GetUserDTO> { 
-                    Success = false, 
-                    Data = user,
-                    ErrorMessage = "User not logged in"};
+                var ErrResponse = new ApiResponseType<GetUserDTO>(false, "No user logged in", user);
                 return TypedResults.Ok(ErrResponse);
             }
-            var response = new ApiResponseType<GetUserDTO>
-            {
-                Data = user,
-                Success = true,
-                ErrorMessage = string.Empty
-            };
+            var response = new ApiResponseType<GetUserDTO>(true, "", user);
             return TypedResults.Ok(response);
         }
 
