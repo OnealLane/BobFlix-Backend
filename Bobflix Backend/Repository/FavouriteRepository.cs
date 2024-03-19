@@ -16,7 +16,10 @@ namespace Bobflix_Backend.Repository
         public async Task<UserMovie?> SetFavourite(string ImdbId)
         {
             var userMovie =  await _db.UserMovies.FirstOrDefaultAsync(x => x.ImdbId == ImdbId);
-
+            if(userMovie == null)
+            {
+                UserMovie userMovie = new UserMovie() { ImdbId = ImdbId };
+            }
             userMovie.Favourite = !userMovie.Favourite;
             await _db.SaveChangesAsync();
        
