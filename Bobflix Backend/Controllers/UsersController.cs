@@ -31,59 +31,61 @@ namespace Bobflix_Backend.Controllers
 
         [HttpPost]
         [Route("register")]
-        public async Task<IActionResult> Register(RegistrationRequest request)
+        public async Task<ApiResponseType<GetUserDTO>> Register(RegistrationRequest request)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var user = new ApplicationUser { UserName = request.Username, Email = request.Email, Role = request.role };
+            var response = new GetUserDTO { Email = user.Email, UserName = user.UserName };
 
             var result = await _userManager.CreateAsync(user, request.Password);
 
+
             if (result.Succeeded)
             {
-               
-                return CreatedAtAction(nameof(Register), new { email = request.Email, role = Role.User }, request);
+
+                AuthRequest temp = new AuthRequest { Email = request.Email, Password = request.Password };
+                await Authenticate(temp);
+                return new ApiResponseType<GetUserDTO>(true, "", response);
             }
 
-            foreach (var error in result.Errors)
+            else
             {
-                ModelState.AddModelError(error.Code, error.Description);
+                return new ApiResponseType<GetUserDTO>(false, "Bad email or password", response);
             }
-            return BadRequest(ModelState);
         }
 
 
         [HttpPost]
         [Route("login")]
-        public async Task<ActionResult<AuthResponse>> Authenticate([FromBody] AuthRequest request)
+        public async Task<ApiResponseType<AuthResponse>> Authenticate([FromBody] AuthRequest request)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                var resp = new AuthResponse();
+                return new ApiResponseType<AuthResponse>(false, "Bad Request", resp);
             }
 
             var managedUser = await _userManager.FindByEmailAsync(request.Email!);
 
             if (managedUser == null)
             {
-                return BadRequest("Bad email");
+                var resp = new AuthResponse();
+                return new ApiResponseType<AuthResponse>(false, "Bad Email", resp);
             }
 
             var isPassordValid = await _userManager.CheckPasswordAsync(managedUser, request.Password);
 
             if (!isPassordValid)
             {
-                return BadRequest("Bad password");
+                var resp = new AuthResponse();
+                return new ApiResponseType<AuthResponse>(false, "Incorrect Password", resp);
             }
 
             var userInDb = _dataContext.Users.FirstOrDefault(u => u.Email == request.Email);
 
             if (userInDb == null)
             {
-                return Unauthorized();
+                var resp = new AuthResponse();
+                return new ApiResponseType<AuthResponse>(false, "User does not exist", resp);
             }
 
             var AccessToken = _tokenService.CreateToken(userInDb);
@@ -99,17 +101,18 @@ namespace Bobflix_Backend.Controllers
 
             var response = new ApiResponseType<AuthResponse>(true, "", user);
            
-            return Ok(response);
+            return response;
         }
 
         [HttpPut]
         [Authorize(Roles = "User, Admin")]
         [Route("update")]
-        public async Task<IActionResult> UpdateUser(UserUpdateRequest request)
+        public async Task<ApiResponseType<AuthResponse>> UpdateUser(UserUpdateRequest request)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                var resp = new AuthResponse();
+                return new ApiResponseType<AuthResponse>(false, "Bad Request", resp);
             }
             var currEmail = User.Email();
             var currentUser = await _userManager.FindByEmailAsync(currEmail);
@@ -122,11 +125,8 @@ namespace Bobflix_Backend.Controllers
 
                 if (!result.Succeeded)
                 {
-                    foreach (var error in result.Errors)
-                    {
-                        ModelState.AddModelError(error.Code, error.Description);
-                    }
-                    return BadRequest(ModelState);
+                    var resp = new AuthResponse();
+                    return new ApiResponseType<AuthResponse>(false, "Bad Password Change Request", resp);
                 }
             }
 
@@ -146,16 +146,13 @@ namespace Bobflix_Backend.Controllers
 
 
                 var response = new ApiResponseType<AuthResponse>(true, "", user);
-                return Ok(response);
+                return response;
 
             }
             else
             {
-                foreach (var error in updatedResult.Errors)
-                {
-                    ModelState.AddModelError(error.Code, error.Description);
-                }
-                return BadRequest(ModelState);
+                var resp = new AuthResponse();
+                return new ApiResponseType<AuthResponse>(false, "Bad Request", resp);
             }
 
         }
@@ -163,26 +160,26 @@ namespace Bobflix_Backend.Controllers
         [HttpGet]
         [Authorize(Roles = "User, Admin")]
         [Route("get")]
-        public async Task<IResult> getUser()
+        public async Task<ApiResponseType<GetUserWInfoDTO>> getUser()
         {
 
             var currEmail = User.Email();
             var currentUser = await _userManager.FindByEmailAsync(currEmail);
 
 
-            GetUserDTO user = new GetUserDTO
+            var user = new GetUserWInfoDTO
             {
                 UserName = currentUser.UserName,
                 Email = currentUser.Email
             };
 
-            if(currentUser.Email == null)
+            if(currentUser == null)
             {
-                var ErrResponse = new ApiResponseType<GetUserDTO>(false, "No user logged in", user);
-                return TypedResults.Ok(ErrResponse);
+                var ErrResponse = new ApiResponseType<GetUserWInfoDTO>(false, "No user logged in", user);
+                return ErrResponse;
             }
-            var response = new ApiResponseType<GetUserDTO>(true, "", user);
-            return TypedResults.Ok(response);
+            var response = new ApiResponseType<GetUserWInfoDTO>(true, "Success", user);
+            return response;
         }
 
 
