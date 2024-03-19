@@ -15,18 +15,36 @@ namespace Bobflix_Backend.Repository
             _db = db;
         }
 
-        public async Task<IEnumerable<Movie>> GetMovies()
+        public async Task<List<Movie>> GetMovies()
         {
             return await _db.Movies.ToListAsync();
         }
 
-        public async Task<List<Movie>> GetMoviesByPage(int pageNum)
+        public async Task<GetMoviesDto> GetMoviesByPage(int pageNum)
         {
             int numMovies = _db.Movies.Count();
             double saus = numMovies / 10;
             int numPages = (int)Math.Ceiling(saus);
-            var movies = await _db.Movies.Skip((pageNum - 1) * 10).Take(10).ToListAsync();
-            return movies;
+            var movies = await _db.Movies.Skip((pageNum - 1) * 10).Take(10).Select(x => new GetMovieDto()
+            {
+                ImdbId = x.ImdbId,
+                Title = x.Title,
+                Plot = x.Plot,
+                PosterUrl = x.PosterUrl,
+                Director = x.Director,
+                Released = x.Released,
+                AvgRating = x.AvgRating,
+                CurrentUserRating = 1,
+
+
+
+            }).ToListAsync();
+            return new GetMoviesDto()
+            {
+                Movies = movies,
+                CurrentPage = pageNum,
+                TotalPages = numPages
+            };
         }
 
         public async Task<IEnumerable<Movie>> GetMoviesBySearch(string searchTerm, int pageNum)

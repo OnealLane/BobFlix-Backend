@@ -11,7 +11,7 @@ namespace Bobflix_Backend.Endpoints
     {
         public static void ConfigureMovieEndpoint(this WebApplication app)
         {
-            var movieGroup = app.MapGroup("movies");
+            var movieGroup = app.MapGroup("api/movies");
 
             movieGroup.MapGet("", GetMovies);
             movieGroup.MapGet("{pageNum}", GetMoviesByPage);
@@ -20,38 +20,20 @@ namespace Bobflix_Backend.Endpoints
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public static async Task<ApiResponseType<IEnumerable<Movie>>> GetMovies(IMovieRepository movieRepository)
+        public static async Task<ApiResponseType<List<Movie>>> GetMovies(IMovieRepository movieRepository)
         {
              var result = await movieRepository.GetMovies();
 
-            return new ApiResponseType<IEnumerable<Movie>>(true, "Successfully requested all movies", result);
+            return new ApiResponseType<List<Movie>>(true, "Successfully requested all movies", result);
 
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public static async Task<ApiResponseType<List<GetMovieDto>>> GetMoviesByPage(IMovieRepository movieRepository, int pageNum)
+        public static async Task<ApiResponseType<GetMoviesDto>> GetMoviesByPage(IMovieRepository movieRepository, int pageNum)
         {
-            var moviesByPage = await movieRepository.GetMoviesByPage(pageNum);
+            var result = await movieRepository.GetMoviesByPage(pageNum);
 
-            List<GetMovieDto> movies = new List<GetMovieDto>();
-
-            foreach (var entity in moviesByPage)
-            {
-                var movie = new GetMovieDto()
-                {
-                    ImdbId = entity.ImdbId,
-                    Title = entity.Title,
-                    Plot = entity.Plot,
-                    Poster_url = entity.Poster_url,
-                    Director = entity.Director,
-                    Released = entity.Released,
-                    AverageRating = 1,
-                    CurrentUserRating = 1,
-                };
-                movies.Add(movie);  
-            }
-
-            return new ApiResponseType<List<GetMovieDto>>(true, "Successfully requested movies by page", movies);
+            return new ApiResponseType<GetMoviesDto>(true, "Successfully requested movies by page", result);
         }
 
 

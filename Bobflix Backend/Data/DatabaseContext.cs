@@ -24,7 +24,8 @@ namespace Bobflix_Backend
                 foreach (var searchItem in sL.SearchResults)
                 {
                     Item item = omdb.GetItemById(searchItem.ImdbId, true);
-                    Movie movie = new Movie { ImdbId = item.ImdbId, Title = item.Title, Plot = item.Plot, Poster_url = item.Poster, Director = item.Director, Released = item.Released };
+                    Movie movie = new Movie { ImdbId = item.ImdbId, Title = item.Title, Director = item.Director, Released = item.Released, 
+                        PosterUrl = item.Poster, Plot = item.Plot, AvgRating = Math.Round(double.Parse(item.ImdbRating), 2)};
                     Movies.Add(movie);
                 }
 
