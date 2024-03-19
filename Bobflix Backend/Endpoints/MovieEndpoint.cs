@@ -31,6 +31,10 @@ namespace Bobflix_Backend.Endpoints
         public static async Task<ApiResponseType<GetMoviesDto>> GetMoviesByPage(IMovieRepository movieRepository, int pageNum)
         {
             var result = await movieRepository.GetMoviesByPage(pageNum);
+            if(result.CurrentPage > result.TotalPages)
+            {
+                return new ApiResponseType<GetMoviesDto>(false, "Failed to requeste movies by page", result);
+            }
 
             return new ApiResponseType<GetMoviesDto>(true, "Successfully requested movies by page", result);
         }
@@ -43,6 +47,11 @@ namespace Bobflix_Backend.Endpoints
             if(result.TotalPages < 1)
             {
                 return new ApiResponseType<GetMoviesDto>(false, "Failed to request movies by search", result);
+            }
+
+            if (result.CurrentPage > result.TotalPages)
+            {
+                return new ApiResponseType<GetMoviesDto>(false, "Failed to requeste movies by page", result);
             }
 
             return new ApiResponseType<GetMoviesDto>(true, "Successfully requested movies by search", result);
