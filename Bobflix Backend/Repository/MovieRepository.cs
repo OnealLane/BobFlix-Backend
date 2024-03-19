@@ -66,7 +66,7 @@ namespace Bobflix_Backend.Repository
                     AvgRating = movie.AvgRating,
                     CurrentUserRating = 1,
                 };
-                if (movie.Title.Contains(searchTerm))
+                if (movie.Title.ToLower().Contains(searchTerm.ToLower()))
                 {
                     filteredMovies.Add(movieDto);
                 }
@@ -74,7 +74,7 @@ namespace Bobflix_Backend.Repository
 
             var numMovies = filteredMovies.Count();
             double saus = numMovies / 10;
-            int numPages = (int)Math.Ceiling(saus);
+            int numPages = (int)Math.Ceiling(saus + 1);
 
             filteredMovies.Skip((pageNum - 1) * 10).Take(10);
 
@@ -86,10 +86,14 @@ namespace Bobflix_Backend.Repository
             };
         }
 
-        public async Task<GetMovieDto> GetMovieById(string id)
+        public async Task<GetMovieDto?> GetMovieById(string id)
         {
             var movie = await _db.Movies.FirstOrDefaultAsync(x => x.ImdbId == id);
 
+            if(movie == null)
+            {
+                return null;
+            }
             return new GetMovieDto()
             {
                 ImdbId = movie.ImdbId,

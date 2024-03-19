@@ -16,7 +16,7 @@ namespace Bobflix_Backend.Endpoints
             movieGroup.MapGet("", GetMovies);
             movieGroup.MapGet("{pageNum}", GetMoviesByPage);
             movieGroup.MapGet("{searchTerm}/{pageNum}", GetMoviesBySearch);
-            movieGroup.MapGet("GetBy/{id}", GetMovieById);
+            movieGroup.MapGet("getBy/{id}", GetMovieById);
 
         }
 
@@ -51,6 +51,7 @@ namespace Bobflix_Backend.Endpoints
         public static async Task<ApiResponseType<GetMovieDto>> GetMovieById(IMovieRepository movieRepository, string id)
         {
             var result = await movieRepository.GetMovieById(id);
+
             if (result == null)
             {
                 return new ApiResponseType<GetMovieDto>(false, "Failed to request movie by id", result);
