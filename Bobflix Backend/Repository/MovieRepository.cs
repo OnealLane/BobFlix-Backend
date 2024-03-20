@@ -2,9 +2,7 @@
 using Bobflix_Backend.Models;
 using Bobflix_Backend.Models.Dto;
 using Bobflix_Backend.Repository.Interfaces;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace Bobflix_Backend.Repository
 {
@@ -42,8 +40,23 @@ namespace Bobflix_Backend.Repository
                 Director = x.Director,
                 Released = x.Released,
                 AvgRating = x.AvgRating,
-                CurrentUserRating = (userMovie == null) ? 0 : userMovie.Rating,
+                CurrentUserRating = 0
             }).ToListAsync();
+
+            if (currentUser != null)
+            {
+                foreach (GetMovieDto x in movies)
+                {
+
+                    UserMovie? movieRating = await _db.UserMovies.Where(y => y.ImdbId == x.ImdbId && y.UserId == currentUser.Email).FirstOrDefaultAsync();
+                    if (movieRating != null)
+                    {
+                        x.CurrentUserRating = movieRating.Rating;
+                    }
+
+                }
+            }
+
             return new GetMoviesDto()
             {
                 Movies = movies,
@@ -59,15 +72,15 @@ namespace Bobflix_Backend.Repository
             List<GetMovieDto> filteredMovies = new List<GetMovieDto>();
             ApplicationUser? currentUser = await _userHelper.GetCurrentUserAsync();
             UserMovie? userMovie = null;
-            
+
             foreach (var movie in movies)
             {
-                    if (currentUser != null)
-                    {
-                        userMovie = await _db.UserMovies.FirstOrDefaultAsync(x => x.ImdbId == movie.ImdbId && x.UserId == currentUser.Email);
+                if (currentUser != null)
+                {
+                    userMovie = await _db.UserMovies.FirstOrDefaultAsync(x => x.ImdbId == movie.ImdbId && x.UserId == currentUser.Email);
 
-                    }
-                   
+                }
+
 
                 var movieDto = new GetMovieDto()
                 {
