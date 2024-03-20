@@ -1,5 +1,4 @@
 ﻿using Bobflix_Backend.Helpers;
-using Bobflix_Backend.Models;
 using Bobflix_Backend.Models.Dto;
 using Bobflix_Backend.Repository.Interfaces;
 using Microsoft.AspNetCore.SignalR;
@@ -11,10 +10,9 @@ namespace Bobflix_Backend.Repository
     public class MovieRepository : IMovieRepository
     {
         private DatabaseContext _db;
-        private IUserHelper _
+        private IUserHelper _userHelper;
 
-
-        public MovieRepository(DatabaseContext db)
+        public MovieRepository(DatabaseContext db, IUserHelper userHelper)
         {
             _db = db;
             _userHelper = userHelper;
@@ -58,6 +56,7 @@ namespace Bobflix_Backend.Repository
             foreach (var movie in movies)
             {
                 var userMovie = await _db.UserMovies.FirstOrDefaultAsync(x => x.ImdbId == movie.ImdbId && x.UserId == currentUser.Email);
+
                 var movieDto = new GetMovieDto()
                 {
                     ImdbId = movie.ImdbId,
@@ -67,8 +66,16 @@ namespace Bobflix_Backend.Repository
                     Director = movie.Director,
                     Released = movie.Released,
                     AvgRating = movie.AvgRating,
-                    CurrentUserRating = userMovie.Rating,
                 };
+
+                if (userMovie == null)
+                {
+                    movieDto.CurrentUserRating = 0;
+                }
+                else
+                {
+                    movieDto.CurrentUserRating = userMovie.Rating;
+                }
                 if (movie.Title.ToLower().Contains(searchTerm.ToLower()))
                 {
                     filteredMovies.Add(movieDto);
@@ -94,13 +101,13 @@ namespace Bobflix_Backend.Repository
             var movie = await _db.Movies.FirstOrDefaultAsync(x => x.ImdbId == id);
 
             var currentUser = await _userHelper.GetCurrentUserAsync();
-            var userMovie = await _db.UserMovies.FirstOrDefaultAsync(x => x.ImdbId == movie.ImdbId && x.UserId == currentUser.Email);
+            var userMovie = await _db.UserMovies.FirstOrDefaultAsync(x => x.ImdbId == id && x.UserId == currentUser.Email);
 
             if (movie == null)
             {
                 return null;
             }
-            return new GetMovieDto()
+            var movieDto = new GetMovieDto()
             {
                 ImdbId = movie.ImdbId,
                 Title = movie.Title,
@@ -109,9 +116,18 @@ namespace Bobflix_Backend.Repository
                 Director = movie.Director,
                 Released = movie.Released,
                 AvgRating = movie.AvgRating,
-                CurrentUserRating = userMovie.Rating,
             };
+            if (userMovie == null)
+            {
+                movieDto.CurrentUserRating = 0;
+            }
+            else
+            {
+                movieDto.CurrentUserRating = userMovie.Rating;
+            }
+
+            return movieDto;
         }
-               
+
     }
 }
