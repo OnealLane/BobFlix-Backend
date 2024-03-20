@@ -59,7 +59,7 @@ namespace Bobflix_Backend.Controllers
 
             else
             {
-                return new ApiResponseType<AuthResponse>(false, "Bad email or password", response);
+                return new ApiResponseType<AuthResponse>(false, "Bad email or password", new AuthResponse { Email = request.Email, Username = request.Username});
             }
         }
 
