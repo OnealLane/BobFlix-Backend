@@ -2,6 +2,7 @@
 using Bobflix_Backend.Models;
 using Bobflix_Backend.Models.Dto;
 using Bobflix_Backend.Repository.Interfaces;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
@@ -10,9 +11,10 @@ namespace Bobflix_Backend.Repository
     public class MovieRepository : IMovieRepository
     {
         private DatabaseContext _db;
-        private IUserHelper _userHelper;
+        private IUserHelper _
 
-        public MovieRepository(DatabaseContext db, IUserHelper userHelper)
+
+        public MovieRepository(DatabaseContext db)
         {
             _db = db;
             _userHelper = userHelper;
@@ -24,6 +26,10 @@ namespace Bobflix_Backend.Repository
             int numMovies = _db.Movies.Count();
             double saus = numMovies / 10;
             int numPages = (int)Math.Ceiling(saus);
+
+            var currentUser = await _userHelper.GetCurrentUserAsync();
+            var userMovie = await _db.UserMovies.FirstOrDefaultAsync(x => x.UserId == currentUser.Email);
+
             var movies = await _db.Movies.Skip((pageNum - 1) * 10).Take(10).Select(x => new GetMovieDto()
             {
                 ImdbId = x.ImdbId,
@@ -33,10 +39,7 @@ namespace Bobflix_Backend.Repository
                 Director = x.Director,
                 Released = x.Released,
                 AvgRating = x.AvgRating,
-                CurrentUserRating = 1,
-
-
-
+                CurrentUserRating = userMovie.Rating,
             }).ToListAsync();
             return new GetMoviesDto()
             {
@@ -51,9 +54,10 @@ namespace Bobflix_Backend.Repository
             var movies = await _db.Movies.ToListAsync();
 
             List<GetMovieDto> filteredMovies = new List<GetMovieDto>();
-
-            foreach(var movie in movies)
+            var currentUser = await _userHelper.GetCurrentUserAsync();
+            foreach (var movie in movies)
             {
+                var userMovie = await _db.UserMovies.FirstOrDefaultAsync(x => x.ImdbId == movie.ImdbId && x.UserId == currentUser.Email);
                 var movieDto = new GetMovieDto()
                 {
                     ImdbId = movie.ImdbId,
@@ -63,7 +67,7 @@ namespace Bobflix_Backend.Repository
                     Director = movie.Director,
                     Released = movie.Released,
                     AvgRating = movie.AvgRating,
-                    CurrentUserRating = 1,
+                    CurrentUserRating = userMovie.Rating,
                 };
                 if (movie.Title.ToLower().Contains(searchTerm.ToLower()))
                 {
@@ -89,7 +93,10 @@ namespace Bobflix_Backend.Repository
         {
             var movie = await _db.Movies.FirstOrDefaultAsync(x => x.ImdbId == id);
 
-            if(movie == null)
+            var currentUser = await _userHelper.GetCurrentUserAsync();
+            var userMovie = await _db.UserMovies.FirstOrDefaultAsync(x => x.ImdbId == movie.ImdbId && x.UserId == currentUser.Email);
+
+            if (movie == null)
             {
                 return null;
             }
@@ -102,7 +109,7 @@ namespace Bobflix_Backend.Repository
                 Director = movie.Director,
                 Released = movie.Released,
                 AvgRating = movie.AvgRating,
-                CurrentUserRating = 1,
+                CurrentUserRating = userMovie.Rating,
             };
         }
                
