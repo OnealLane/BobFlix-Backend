@@ -491,3 +491,5 @@ $RECYCLE.BIN/
 */**/obj/Release   
 /BobFlix\ Backend/appsettings.json
 /Bobflix\ Backend/appsettings.Development.json
+/Bobflix Backend/appsettings.json
+/Bobflix Backend/appsettings.Development.json
