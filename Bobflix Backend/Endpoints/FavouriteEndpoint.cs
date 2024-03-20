@@ -1,8 +1,11 @@
 ﻿using Bobflix_Backend.ApiResponseType;
+using Bobflix_Backend.Helpers;
 using Bobflix_Backend.Models;
 using Bobflix_Backend.Models.Dto;
 using Bobflix_Backend.Repository.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+
 
 namespace Bobflix_Backend.Endpoints
 {
@@ -14,7 +17,6 @@ namespace Bobflix_Backend.Endpoints
 
             favouriteGroup.MapPut("{ImdbId}", SetFavourite);
         }
-
 
 
         public static async Task<ApiResponseType<FavouriteDto>> SetFavourite(IFavouriteRepository favouriteRepository, string ImdbId){
