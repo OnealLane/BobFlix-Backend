@@ -141,6 +141,7 @@ if (app.Environment.IsDevelopment())
     {
         opt.AllowAnyOrigin();
         opt.AllowAnyHeader();
+        opt.AllowAnyMethod();
     });
 }
 
