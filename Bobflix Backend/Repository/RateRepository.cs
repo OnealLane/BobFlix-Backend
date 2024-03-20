@@ -23,7 +23,7 @@ namespace Bobflix_Backend.Repository
             //  var userMovie = await _db.UserMovies.FirstOrDefaultAsync(x => x.ImdbId == ImdbId);
             if (movie == null)
             {
-                UserMovie newUserMovie = new UserMovie() { ImdbId = movie.ImdbId, UserId = user.Email, UsersId = user.Id, Rating = rating };
+                UserMovie newUserMovie = new UserMovie() { ImdbId = ImdbId, UserId = user.Email, UsersId = user.Id, Rating = rating };
                 await _db.UserMovies.AddAsync(newUserMovie);
                 await _db.SaveChangesAsync();
                 return newUserMovie;
