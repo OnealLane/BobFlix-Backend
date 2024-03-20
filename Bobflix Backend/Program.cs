@@ -102,6 +102,7 @@ var symmetricSecurityKey = builder.Configuration.GetValue<string>("JwtTokenSetti
 
 builder.Services.AddScoped<IMovieRepository, MovieRepository>();
 builder.Services.AddScoped<IFavouriteRepository, FavouriteRepository>();
+builder.Services.AddScoped<IRateRepository, RateRepository>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IUserHelper, UserHelper>();
 
@@ -155,6 +156,7 @@ app.UseAuthorization();
 app.MapControllers();
 app.ConfigureMovieEndpoint();
 app.ConfigureFavouriteEndpoint();
+app.ConfigureRateEndpoint();
 
 
 app.Run();

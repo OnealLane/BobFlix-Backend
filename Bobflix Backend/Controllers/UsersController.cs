@@ -31,12 +31,22 @@ namespace Bobflix_Backend.Controllers
 
         [HttpPost]
         [Route("register")]
-        public async Task<ApiResponseType<GetUserDTO>> Register(RegistrationRequest request)
+        public async Task<ApiResponseType<AuthResponse>> Register(RegistrationRequest request)
         {
             var user = new ApplicationUser { UserName = request.Username, Email = request.Email, Role = request.role };
-            var response = new GetUserDTO { Email = user.Email, UserName = user.UserName };
+           // var response = new GetUserDTO { Email = user.Email, UserName = user.UserName };
 
             var result = await _userManager.CreateAsync(user, request.Password);
+
+            var AccessToken = _tokenService.CreateToken(user);
+            await _dataContext.SaveChangesAsync();
+
+            AuthResponse response = new AuthResponse
+            {
+                Username = user.UserName,
+                Email = user.Email,
+                Token = AccessToken
+            };
 
 
             if (result.Succeeded)
@@ -44,12 +54,12 @@ namespace Bobflix_Backend.Controllers
 
                 AuthRequest temp = new AuthRequest { Email = request.Email, Password = request.Password };
                 await Authenticate(temp);
-                return new ApiResponseType<GetUserDTO>(true, "", response);
+                return new ApiResponseType<AuthResponse>(true, "", response);
             }
 
             else
             {
-                return new ApiResponseType<GetUserDTO>(false, "Bad email or password", response);
+                return new ApiResponseType<AuthResponse>(false, "Bad email or password", response);
             }
         }
 
