@@ -18,5 +18,9 @@ namespace Bobflix_Backend.Models
         public bool Favourite {  get; set; }
         [Column("rating")]
         public int Rating { get; set; }
+
+        [Column("UsersId")]
+        [ForeignKey("ApplicationUser")]
+        public string UsersId { get; set; }
     }
 }
