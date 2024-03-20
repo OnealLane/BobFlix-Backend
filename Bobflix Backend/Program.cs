@@ -154,6 +154,7 @@ app.UseAuthorization();
 app.MapControllers();
 app.ConfigureMovieEndpoint();
 app.ConfigureFavouriteEndpoint();
+app.ConfigureRateEndpoint();
 
 
 app.Run();
