@@ -1,4 +1,5 @@
 ﻿using Bobflix_Backend.Helpers;
+using Bobflix_Backend.Models;
 using Bobflix_Backend.Models.Dto;
 using Bobflix_Backend.Repository.Interfaces;
 using Microsoft.AspNetCore.SignalR;
@@ -25,8 +26,12 @@ namespace Bobflix_Backend.Repository
             double saus = numMovies / 10;
             int numPages = (int)Math.Ceiling(saus);
 
-            var currentUser = await _userHelper.GetCurrentUserAsync();
-            var userMovie = await _db.UserMovies.FirstOrDefaultAsync(x => x.UserId == currentUser.Email);
+            ApplicationUser? currentUser = await _userHelper.GetCurrentUserAsync();
+            UserMovie? userMovie = null;
+            if (currentUser != null)
+            {
+                userMovie = await _db.UserMovies.FirstOrDefaultAsync(x => x.UserId == currentUser.Email);
+            }
 
             var movies = await _db.Movies.Skip((pageNum - 1) * 10).Take(10).Select(x => new GetMovieDto()
             {
@@ -37,7 +42,7 @@ namespace Bobflix_Backend.Repository
                 Director = x.Director,
                 Released = x.Released,
                 AvgRating = x.AvgRating,
-                CurrentUserRating = userMovie.Rating,
+                CurrentUserRating = (userMovie == null) ? 0 : userMovie.Rating,
             }).ToListAsync();
             return new GetMoviesDto()
             {
@@ -52,10 +57,17 @@ namespace Bobflix_Backend.Repository
             var movies = await _db.Movies.ToListAsync();
 
             List<GetMovieDto> filteredMovies = new List<GetMovieDto>();
-            var currentUser = await _userHelper.GetCurrentUserAsync();
+            ApplicationUser? currentUser = await _userHelper.GetCurrentUserAsync();
+            UserMovie? userMovie = null;
+            
             foreach (var movie in movies)
             {
-                var userMovie = await _db.UserMovies.FirstOrDefaultAsync(x => x.ImdbId == movie.ImdbId && x.UserId == currentUser.Email);
+                    if (currentUser != null)
+                    {
+                        userMovie = await _db.UserMovies.FirstOrDefaultAsync(x => x.ImdbId == movie.ImdbId && x.UserId == currentUser.Email);
+
+                    }
+                   
 
                 var movieDto = new GetMovieDto()
                 {
@@ -66,16 +78,9 @@ namespace Bobflix_Backend.Repository
                     Director = movie.Director,
                     Released = movie.Released,
                     AvgRating = movie.AvgRating,
+                    CurrentUserRating = (userMovie == null) ? 0 : userMovie.Rating,
                 };
 
-                if (userMovie == null)
-                {
-                    movieDto.CurrentUserRating = 0;
-                }
-                else
-                {
-                    movieDto.CurrentUserRating = userMovie.Rating;
-                }
                 if (movie.Title.ToLower().Contains(searchTerm.ToLower()))
                 {
                     filteredMovies.Add(movieDto);
@@ -99,9 +104,13 @@ namespace Bobflix_Backend.Repository
         public async Task<GetMovieDto?> GetMovieById(string id)
         {
             var movie = await _db.Movies.FirstOrDefaultAsync(x => x.ImdbId == id);
+            ApplicationUser? currentUser = await _userHelper.GetCurrentUserAsync();
+            UserMovie? userMovie = null;
+            if (currentUser != null)
+            {
+                userMovie = await _db.UserMovies.FirstOrDefaultAsync(x => x.ImdbId == movie.ImdbId && x.UserId == currentUser.Email);
 
-            var currentUser = await _userHelper.GetCurrentUserAsync();
-            var userMovie = await _db.UserMovies.FirstOrDefaultAsync(x => x.ImdbId == id && x.UserId == currentUser.Email);
+            }
 
             if (movie == null)
             {
@@ -116,16 +125,8 @@ namespace Bobflix_Backend.Repository
                 Director = movie.Director,
                 Released = movie.Released,
                 AvgRating = movie.AvgRating,
+                CurrentUserRating = (userMovie == null) ? 0 : userMovie.Rating,
             };
-            if (userMovie == null)
-            {
-                movieDto.CurrentUserRating = 0;
-            }
-            else
-            {
-                movieDto.CurrentUserRating = userMovie.Rating;
-            }
-
             return movieDto;
         }
 
