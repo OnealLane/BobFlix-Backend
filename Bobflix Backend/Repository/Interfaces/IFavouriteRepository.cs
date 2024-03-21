@@ -4,6 +4,6 @@ namespace Bobflix_Backend.Repository.Interfaces
 {
     public interface IFavouriteRepository
     {
-        Task<UserMovie> SetFavourite(string ImdbId);
+        Task<UserMovie?> SetFavourite(string ImdbId);
     }
 }

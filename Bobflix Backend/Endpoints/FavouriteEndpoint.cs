@@ -19,13 +19,18 @@ namespace Bobflix_Backend.Endpoints
         }
 
 
-        public static async Task<ApiResponseType<FavouriteDto>> SetFavourite(IFavouriteRepository favouriteRepository, string ImdbId){
+        public static async Task<ApiResponseType<FavouriteDto?>> SetFavourite(IFavouriteRepository favouriteRepository, string ImdbId){
 
             var userMovie = await favouriteRepository.SetFavourite(ImdbId);
 
+            if (userMovie == null)
+            {
+                return new ApiResponseType<FavouriteDto?>(false, "User was invalid.", null) ;
+            }
+
             FavouriteDto favouriteDto = new FavouriteDto() { Favourite = userMovie.Favourite };
 
-            return new ApiResponseType<FavouriteDto>(true, "Successfully set favourite movie", favouriteDto);
+            return new ApiResponseType<FavouriteDto?>(true, "Successfully set favourite movie", favouriteDto);
 
         }
 
