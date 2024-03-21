@@ -2,9 +2,7 @@
 using Bobflix_Backend.Models;
 using Bobflix_Backend.Models.Dto;
 using Bobflix_Backend.Repository.Interfaces;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace Bobflix_Backend.Repository
 {
@@ -43,6 +41,7 @@ namespace Bobflix_Backend.Repository
                         .Select(y => y.Rating)
                         .FirstOrDefault()
         }).ToListAsync();
+
             return new GetMoviesDto()
             {
                 Movies = movies,
@@ -58,15 +57,15 @@ namespace Bobflix_Backend.Repository
             List<GetMovieDto> filteredMovies = new List<GetMovieDto>();
             ApplicationUser? currentUser = await _userHelper.GetCurrentUserAsync();
             UserMovie? userMovie = null;
-            
+
             foreach (var movie in movies)
             {
-                    if (currentUser != null)
-                    {
-                        userMovie = await _db.UserMovies.FirstOrDefaultAsync(x => x.ImdbId == movie.ImdbId && x.UserId == currentUser.Email);
+                if (currentUser != null)
+                {
+                    userMovie = await _db.UserMovies.FirstOrDefaultAsync(x => x.ImdbId == movie.ImdbId && x.UserId == currentUser.Email);
 
-                    }
-                   
+                }
+
 
                 var movieDto = new GetMovieDto()
                 {
