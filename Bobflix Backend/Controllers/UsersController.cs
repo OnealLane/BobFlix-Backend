@@ -208,8 +208,9 @@ namespace Bobflix_Backend.Controllers
             double avgRating = 0;
             if (userMovies.Count > 0)
             {
-                double total = userMovies.Sum(x => x.Rating);
-                avgRating = Math.Round((total) / userMovies.Count, 2);
+                List<UserMovie> filteredMovies = userMovies.Where(x => x.Rating != 0).ToList();
+                double total = filteredMovies.Sum(x => x.Rating);
+                avgRating = Math.Round((total) / filteredMovies.Count, 2);
             }
 
 
