@@ -12,34 +12,36 @@ namespace Bobflix_Backend.Repository
     {
         private DatabaseContext _db;
         private UserManager<ApplicationUser> _userManager;
+        private IUserHelper _userHelper;
 
-        public FavouriteRepository(DatabaseContext db, UserManager<ApplicationUser> userManager)
+        public FavouriteRepository(DatabaseContext db, UserManager<ApplicationUser> userManager, IUserHelper userHelper)
         {
             _db = db;
             _userManager = userManager;
+            _userHelper = userHelper;
         }
 
 
-        public async Task<UserMovie> SetFavourite(string ImdbId)
+        public async Task<UserMovie?> SetFavourite(string ImdbId)
         {
 
-            var movie = await _db.Movies.FirstOrDefaultAsync(x => x.ImdbId == ImdbId);
-            var userMovie =  await _db.UserMovies.FirstOrDefaultAsync(x => x.ImdbId == ImdbId);
-
-            IHttpContextAccessor httpContextAccessor = new HttpContextAccessor();
-            IUserHelper userHelper = new UserHelper(httpContextAccessor, _db);
-
-            var currentUser = await userHelper.GetCurrentUserAsync();
+            var currentUser = await _userHelper.GetCurrentUserAsync();
+            if (currentUser == null)
+            {
+                return null;
+            }
+            var userMovie =  await _db.UserMovies.FirstOrDefaultAsync(x => x.ImdbId == ImdbId && x.UserId == currentUser.Email);
 
             if(userMovie == null)
             {
-                UserMovie newUserMovie = new UserMovie() { ImdbId = movie.ImdbId, UserId = currentUser.Email, Favourite = true, UsersId = currentUser.Id };
+                UserMovie newUserMovie = new UserMovie() { ImdbId = ImdbId, UserId = currentUser.Email, Favourite = true, UsersId = currentUser.Id };
                 await _db.UserMovies.AddAsync(newUserMovie);
                 await _db.SaveChangesAsync();
                 return newUserMovie;
             }
 
             userMovie.Favourite = !userMovie.Favourite;
+            
             await _db.SaveChangesAsync();
        
             return userMovie;

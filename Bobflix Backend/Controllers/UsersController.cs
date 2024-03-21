@@ -3,12 +3,14 @@ using Bobflix_Backend.Data.DTO;
 using Bobflix_Backend.Enums;
 using Bobflix_Backend.Helpers;
 using Bobflix_Backend.Models;
+using Bobflix_Backend.Models.Dto;
 using Bobflix_Backend.Models.Request;
 using Bobflix_Backend.Models.Response;
 using Bobflix_Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 
 namespace Bobflix_Backend.Controllers
@@ -170,25 +172,55 @@ namespace Bobflix_Backend.Controllers
         [HttpGet]
         [Authorize(Roles = "User, Admin")]
         [Route("get")]
-        public async Task<ApiResponseType<GetUserWInfoDTO>> getUser()
+        public async Task<ApiResponseType<GetUserWInfoDTO?>> getUser()
         {
 
             var currEmail = User.Email();
             var currentUser = await _userManager.FindByEmailAsync(currEmail);
+            if (currentUser == null)
+            {
+                var ErrResponse = new ApiResponseType<GetUserWInfoDTO?>(false, "No user logged in", null);
+                return ErrResponse;
+            }
+            List<GetMovieDto> favourites = [];
+
+            var userMovies = await _dataContext.UserMovies
+                .Where(x => x.UserId == currentUser.Email).ToListAsync();
+
+
+            foreach (var mov in  userMovies)
+            {
+                if (mov.Favourite)
+                {
+                    var movie = await _dataContext.Movies.FirstOrDefaultAsync(x => x.ImdbId == mov.ImdbId);
+                    if (movie == null) { continue; }
+                    favourites.Add(new GetMovieDto
+                    {
+                        Title = movie.Title,
+                        AvgRating = movie.AvgRating,
+                        Plot = movie.Plot,
+                        Director = movie.Director,
+                        PosterUrl = movie.PosterUrl,
+                        ImdbId = movie.ImdbId,
+                        Released = movie.Released,
+                        CurrentUserRating = (mov == null) ? 0 : mov.Rating,
+                    });
+                }
+                
+            }
+            double total = userMovies.Sum(x => x.Rating);
+            double avgRating = Math.Round((total) / userMovies.Count, 2);
 
 
             var user = new GetUserWInfoDTO
             {
                 UserName = currentUser.UserName,
-                Email = currentUser.Email
+                Email = currentUser.Email,
+                favouriteMovies = favourites,
+                AvgRating = avgRating
             };
 
-            if(currentUser == null)
-            {
-                var ErrResponse = new ApiResponseType<GetUserWInfoDTO>(false, "No user logged in", user);
-                return ErrResponse;
-            }
-            var response = new ApiResponseType<GetUserWInfoDTO>(true, "Success", user);
+            var response = new ApiResponseType<GetUserWInfoDTO?>(true, "Success", user);
             return response;
         }
 

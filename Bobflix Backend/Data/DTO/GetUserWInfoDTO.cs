@@ -6,7 +6,7 @@ namespace Bobflix_Backend.Data.DTO
     {
         public string UserName { get; set; }
         public string Email { get; set; }
-        public int AvgRating { get; set; } = 0;
+        public double AvgRating { get; set; } = 0;
         public List<GetMovieDto> favouriteMovies { get; set; } = [];
     }
 }

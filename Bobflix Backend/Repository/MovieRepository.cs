@@ -27,11 +27,6 @@ namespace Bobflix_Backend.Repository
             int numPages = (int)Math.Ceiling(saus);
 
             ApplicationUser? currentUser = await _userHelper.GetCurrentUserAsync();
-            UserMovie? userMovie = null;
-            if (currentUser != null)
-            {
-                userMovie = await _db.UserMovies.FirstOrDefaultAsync(x => x.UserId == currentUser.Email);
-            }
 
             var movies = await _db.Movies.Skip((pageNum - 1) * 10).Take(10).Select(x => new GetMovieDto()
             {
@@ -42,8 +37,12 @@ namespace Bobflix_Backend.Repository
                 Director = x.Director,
                 Released = x.Released,
                 AvgRating = x.AvgRating,
-                CurrentUserRating = (userMovie == null) ? 0 : userMovie.Rating,
-            }).ToListAsync();
+                CurrentUserRating = (currentUser == null) ? 0 : 
+                    _db.UserMovies
+                        .Where(y => y.ImdbId == x.ImdbId && y.UserId == currentUser.Email)
+                        .Select(y => y.Rating)
+                        .FirstOrDefault()
+        }).ToListAsync();
             return new GetMoviesDto()
             {
                 Movies = movies,
