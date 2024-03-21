@@ -35,12 +35,12 @@ namespace Bobflix_Backend.Repository
                 Director = x.Director,
                 Released = x.Released,
                 AvgRating = x.AvgRating,
-                CurrentUserRating = (currentUser == null) ? 0 : 
+                CurrentUserRating = (currentUser == null) ? 0 :
                     _db.UserMovies
                         .Where(y => y.ImdbId == x.ImdbId && y.UserId == currentUser.Email)
                         .Select(y => y.Rating)
                         .FirstOrDefault()
-        }).ToListAsync();
+            }).ToListAsync();
 
             return new GetMoviesDto()
             {
@@ -52,48 +52,36 @@ namespace Bobflix_Backend.Repository
 
         public async Task<GetMoviesDto> GetMoviesBySearch(string searchTerm, int pageNum)
         {
-            var movies = await _db.Movies.ToListAsync();
-
-            List<GetMovieDto> filteredMovies = new List<GetMovieDto>();
             ApplicationUser? currentUser = await _userHelper.GetCurrentUserAsync();
-            UserMovie? userMovie = null;
 
-            foreach (var movie in movies)
-            {
-                if (currentUser != null)
+            List<GetMovieDto> movies = await _db.Movies
+                .Where(x => x.Title.ToLower().Contains(searchTerm.ToLower()))
+                .Skip((pageNum - 1) * 10)
+                .Take(10)
+                .Select(x => new GetMovieDto()
                 {
-                    userMovie = await _db.UserMovies.FirstOrDefaultAsync(x => x.ImdbId == movie.ImdbId && x.UserId == currentUser.Email);
+                    ImdbId = x.ImdbId,
+                    Title = x.Title,
+                    Plot = x.Plot,
+                    PosterUrl = x.PosterUrl,
+                    Director = x.Director,
+                    Released = x.Released,
+                    AvgRating = x.AvgRating,
+                    CurrentUserRating = (currentUser == null) ? 0 :
+                    _db.UserMovies
+                        .Where(y => y.ImdbId == x.ImdbId && y.UserId == currentUser.Email)
+                        .Select(y => y.Rating)
+                        .FirstOrDefault()
+                })
+                .ToListAsync();
 
-                }
-
-
-                var movieDto = new GetMovieDto()
-                {
-                    ImdbId = movie.ImdbId,
-                    Title = movie.Title,
-                    Plot = movie.Plot,
-                    PosterUrl = movie.PosterUrl,
-                    Director = movie.Director,
-                    Released = movie.Released,
-                    AvgRating = movie.AvgRating,
-                    CurrentUserRating = (userMovie == null) ? 0 : userMovie.Rating,
-                };
-
-                if (movie.Title.ToLower().Contains(searchTerm.ToLower()))
-                {
-                    filteredMovies.Add(movieDto);
-                }
-            }
-
-            var numMovies = filteredMovies.Count();
-            double saus = numMovies / 10;
-            int numPages = (int)Math.Ceiling(saus + 1);
-
-            filteredMovies.Skip((pageNum - 1) * 10).Take(10);
+            var numMovies = movies.Count;
+            double totalP = numMovies / 10;
+            int numPages = (int)Math.Ceiling(totalP + 1);
 
             return new GetMoviesDto()
             {
-                Movies = filteredMovies,
+                Movies = movies,
                 CurrentPage = pageNum,
                 TotalPages = numPages
             };
