@@ -1,17 +1,14 @@
 ﻿using Bobflix_Backend.ApiResponseType;
 using Bobflix_Backend.Data.DTO;
-using Bobflix_Backend.Enums;
 using Bobflix_Backend.Helpers;
 using Bobflix_Backend.Models;
 using Bobflix_Backend.Models.Dto;
 using Bobflix_Backend.Models.Request;
-using Bobflix_Backend.Models.Response;
 using Bobflix_Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 
 namespace Bobflix_Backend.Controllers
 {
@@ -36,7 +33,7 @@ namespace Bobflix_Backend.Controllers
         public async Task<ApiResponseType<AuthResponse>> Register(RegistrationRequest request)
         {
             var user = new ApplicationUser { UserName = request.Username, Email = request.Email, Role = request.role };
-           // var response = new GetUserDTO { Email = user.Email, UserName = user.UserName };
+            // var response = new GetUserDTO { Email = user.Email, UserName = user.UserName };
 
             var result = await _userManager.CreateAsync(user, request.Password);
 
@@ -61,7 +58,7 @@ namespace Bobflix_Backend.Controllers
 
             else
             {
-                return new ApiResponseType<AuthResponse>(false, "Bad email or password", new AuthResponse { Email = request.Email, Username = request.Username});
+                return new ApiResponseType<AuthResponse>(false, "Bad email or password", new AuthResponse { Email = request.Email, Username = request.Username });
             }
         }
 
@@ -103,7 +100,7 @@ namespace Bobflix_Backend.Controllers
             var AccessToken = _tokenService.CreateToken(userInDb);
             await _dataContext.SaveChangesAsync();
 
-           AuthResponse user = new AuthResponse
+            AuthResponse user = new AuthResponse
             {
                 Username = userInDb.UserName,
                 Email = userInDb.Email,
@@ -112,7 +109,7 @@ namespace Bobflix_Backend.Controllers
 
 
             var response = new ApiResponseType<AuthResponse>(true, "", user);
-           
+
             return response;
         }
 
@@ -145,7 +142,7 @@ namespace Bobflix_Backend.Controllers
 
             var updatedResult = await _userManager.UpdateAsync(currentUser);
 
-           
+
 
             if (updatedResult.Succeeded)
             {
@@ -188,7 +185,7 @@ namespace Bobflix_Backend.Controllers
                 .Where(x => x.UserId == currentUser.Email).ToListAsync();
 
 
-            foreach (var mov in  userMovies)
+            foreach (var mov in userMovies)
             {
                 if (mov.Favourite)
                 {
@@ -206,10 +203,14 @@ namespace Bobflix_Backend.Controllers
                         CurrentUserRating = (mov == null) ? 0 : mov.Rating,
                     });
                 }
-                
+
             }
-            double total = userMovies.Sum(x => x.Rating);
-            double avgRating = Math.Round((total) / userMovies.Count, 2);
+            double avgRating = 0;
+            if (userMovies.Count > 0)
+            {
+                double total = userMovies.Sum(x => x.Rating);
+                avgRating = Math.Round((total) / userMovies.Count, 2);
+            }
 
 
             var user = new GetUserWInfoDTO
