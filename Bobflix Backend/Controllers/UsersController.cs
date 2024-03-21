@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Bobflix_Backend.Controllers
 {
@@ -218,7 +219,8 @@ namespace Bobflix_Backend.Controllers
                 UserName = currentUser.UserName,
                 Email = currentUser.Email,
                 favouriteMovies = favourites,
-                AvgRating = avgRating
+                AvgRating = avgRating,
+                imgUrl = currentUser.imgUrl
             };
 
             var response = new ApiResponseType<GetUserWInfoDTO?>(true, "Success", user);
@@ -226,6 +228,41 @@ namespace Bobflix_Backend.Controllers
         }
 
 
+        [HttpPut]
+        [Authorize(Roles = "User, Admin")]
+        [Route("avatar")]
+        public async Task<ApiResponseType<UpdateAvatarDto>> UpdateAvatar(UpdateAvatarDto request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return new ApiResponseType<UpdateAvatarDto>(false, "Bad Request", new UpdateAvatarDto());
+            }
+            var currEmail = User.Email();
+            var currentUser = await _userManager.FindByEmailAsync(currEmail);
 
+            if(currentUser == null) {
+                return new ApiResponseType<UpdateAvatarDto>(false, "Bad Request", new UpdateAvatarDto());
+            }
+
+            if (!string.IsNullOrEmpty(request.ImgUrl))
+            {
+                currentUser.imgUrl = request.ImgUrl;
+            }
+          
+            var updatedResult = await _userManager.UpdateAsync(currentUser);
+
+            if (updatedResult.Succeeded)
+            {
+                UpdateAvatarDto imgResponse = new() { ImgUrl = currentUser.imgUrl };
+
+                var response = new ApiResponseType<UpdateAvatarDto>(true, "Avatar updated successfully", imgResponse);
+                return response;
+            }
+            else
+            {
+                return new ApiResponseType<UpdateAvatarDto>(false, "Bad Request", new UpdateAvatarDto());
+            }
+
+        }
     }
 }

@@ -8,5 +8,7 @@ namespace Bobflix_Backend.Data.DTO
         public string Email { get; set; }
         public double AvgRating { get; set; } = 0;
         public List<GetMovieDto> favouriteMovies { get; set; } = [];
+
+        public string? imgUrl { get; set; }
     }
 }

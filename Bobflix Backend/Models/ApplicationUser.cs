@@ -9,5 +9,7 @@ namespace Bobflix_Backend.Models
     {
         public Role Role { get; set; }
         public IEnumerable<Movie> Movies { get; set;}
+
+        public string? imgUrl { get; set; }
     }
 }
